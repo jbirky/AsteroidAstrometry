@@ -1,0 +1,103 @@
+\documentclass[preprint]{aastex62}
+
+% \usepackage{minted}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{courier}
+\usepackage{cleveref}
+\usepackage{float}
+
+\definecolor{bcolor}{RGB}{0, 51, 153}
+\definecolor{gcolor}{RGB}{51, 153, 51}
+
+\shorttitle{astronomical spectroscopy}
+\shortauthors{j. birky}
+
+\begin{document}
+
+\title{\sc Lab 3: Astrometry}
+\author{Jessica Birky, Julian Beas-Gonzalez, Russell Van-Linge}
+
+\correspondingauthor{Jessica Birky (A13002163)}
+\email{jbirky@ucsd.edu}
+
+\begin{abstract}
+In this lab we determine the wavelength calibration for two different spectrographs: the Ocean Optics USB 2000 fiber optic spectrograph, and the KAST spectrograph mounted at Lick Observatory. Using spectra of several gas lamps (Helium, Neon, and HeHgCd), we compare the pixel values of emission centroids to theoretical emission wavelengths to determine pixel-to-wavelength conversion solutions of $\lambda=.3568(\mathrm{pixel})+344.21$ nm for the Ocean Optics instrument and  $\lambda=.1549(\mathrm{pixel})+329.25$ nm, using linear least-squares regression. We also compute the errors for each emission peak, and find that the error roughly decreases by a 1/$\sqrt{n}$ trend, with higher lower intensity peaks having higher errors. Finally, applying our calibration to spectra from several different light sources (incandescent and fluorescent bulbs) and astronomical sources (the Sun, BD+15233, Feige 110, and J0047+0319) we draw conclusions about how these spectra were formed based off of Kirchoff's laws of spectral formation.
+
+\end{abstract}
+\bigskip
+
+\section{Introduction} 
+
+
+% ==================================
+\section{Observations} \label{sec:observations}
+
+
+% ==================================
+\section{Data Reduction \& Methods} \label{sec:methods}
+
+
+% ==================================
+\section{Data Analysis \& Modeling} \label{sec:analysis}
+
+
+% ==================================
+\section{Discussion} \label{sec:discussion}
+
+
+% ==================================
+\section{Conclusion}
+
+
+% ==================================
+\section{Author Contributions}
+This project was done in collaboration with Julian Beas-Gonzalez and Russell Van-Linge (Group
+E).
+
+% ===================
+
+% ==================================
+\newpage
+\section{Appendix}
+
+\lstset{language=Python,
+        basicstyle=\footnotesize\ttfamily,
+        keywordstyle=\color{blue},
+        numbers=left,
+        numberstyle=\ttfamily,
+        stringstyle=\color{red},
+        commentstyle=\color{gcolor},
+        morecomment=[l][\color{gray}]{\#}
+}
+
+\vspace{7pt} \hrule \vspace{7pt}
+\subsection{Data Reduction} \label{code:reduction}
+\small
+\hrule
+\begin{lstlisting}
+def reduce(dataf, flatf):
+    """
+    Bias-subtract and normalize science images
+    """  
+    flat = fits.getdata(flatf)
+    dat = fits.getdata(dataf)
+    hdr = fits.getheader(dataf)
+
+    #Bias subtract
+    datab = bsub(dat, hdr.get('cover')) 
+    flatb = bsub(flat, hdr.get('cover')) 
+    
+    #Normalize
+    flatb = flatb/np.median(flatb)
+    reduced = datab/flatb
+    
+    return reduced
+\end{lstlisting}
+\hrule \vspace{7pt}
+
+
+
+
+\end{document}
+
