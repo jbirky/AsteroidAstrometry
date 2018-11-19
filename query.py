@@ -69,12 +69,13 @@ def selectField(**kwargs):
     name, rad, ded, rmag = usno(radeg, dedeg, fovam, epoch)
     w = np.where(rmag < 17.)[0] # select only bright stars r < 15 mag.
 
-    plt.figure(figsize=[6,6])
+    plt.figure(figsize=[8,8])
     plt.scatter(rad[w], ded[w], color='k', edgecolor='none')
     plt.xlabel('RA [Deg]')
     plt.ylabel('Dec [Deg]')
     plt.ticklabel_format(useOffset=False)
-    plt.xlim(max(rad), min(rad)) 
+    plt.xlim(radeg+fovam/120, radeg-fovam/120) 
+    plt.ylim(dedeg-fovam/120, dedeg+fovam/120)
     plt.show()
     
     return name[w], rad[w], ded[w], rmag[w]
