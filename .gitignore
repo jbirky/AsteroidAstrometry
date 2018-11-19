@@ -8,3 +8,4 @@
 *.zip
 *.png
 *.fits
+__pycache__/
