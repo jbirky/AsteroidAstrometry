@@ -56,7 +56,7 @@ def selectField(**kwargs):
     """
     file = kwargs.get('file')
     fovam = kwargs.get('fovam', 3.0)
-    rmag = kwargs.get('rmag', 17.)
+    rcut = kwargs.get('rmag', 17.)
     
     s = fits.open(file)
     ras = s[0].header['ra']
@@ -67,15 +67,16 @@ def selectField(**kwargs):
 
     epoch = kwargs.get('epoch', int(s[0].header['DATE'][0:4]))
     name, rad, ded, rmag = usno(radeg, dedeg, fovam, epoch)
-    w = np.where(rmag < 17.)[0] # select only bright stars r < 15 mag.
+    w = np.where(rmag < rcut)[0] # select only bright stars r < 15 mag.
 
-    plt.figure(figsize=[8,8])
-    plt.scatter(rad[w], ded[w], color='k', edgecolor='none')
-    plt.xlabel('RA [Deg]')
-    plt.ylabel('Dec [Deg]')
-    plt.ticklabel_format(useOffset=False)
-    plt.xlim(radeg+fovam/120, radeg-fovam/120) 
-    plt.ylim(dedeg-fovam/120, dedeg+fovam/120)
-    plt.show()
+    if kwargs.get('plot', True) == True:
+        plt.figure(figsize=[8,8])
+        plt.scatter(rad[w], ded[w], color='k', edgecolor='none')
+        plt.xlabel('RA [Deg]')
+        plt.ylabel('Dec [Deg]')
+        plt.ticklabel_format(useOffset=False)
+        plt.xlim(radeg+fovam/120, radeg-fovam/120) 
+        plt.ylim(dedeg-fovam/120, dedeg+fovam/120)
+        plt.show()
     
     return name[w], rad[w], ded[w], rmag[w]
