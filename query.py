@@ -1,5 +1,7 @@
-import urllib
 import numpy as np
+from astropy.io import fits
+import matplotlib.pyplot as plt
+import urllib
 import pdb
 
 def usno(radeg,decdeg,fovam,epoch):
@@ -43,4 +45,36 @@ def usno(radeg,decdeg,fovam,epoch):
             rmag = np.append(rmag,float(kw[12]))
         except:
             rmag = np.append(rmag,np.nan)
+
     return name,rad,ded,rmag
+
+
+def selectField(**kwargs):
+    """
+    Select and plot a field of sources from the USNO-B1.0 catalog
+    above an rmag cut.
+    """
+    file = kwargs.get('file')
+    fovam = kwargs.get('fovam', 3.0)
+    rmag = kwargs.get('rmag', 17.)
+    
+    s = fits.open(file)
+    ras = s[0].header['ra']
+    des = s[0].header['dec']
+    radeg = 15*(float(ras[0:2]) + float(ras[3:5])/60. + float(ras[6:])/3600.)
+    dsgn = np.sign(float(des[0:3]))
+    dedeg = float(des[0:3]) + dsgn*float(des[4:6])/60. + dsgn*float(des[7:])/3600.
+
+    epoch = kwargs.get('epoch', int(s[0].header['DATE'][0:4]))
+    name, rad, ded, rmag = usno(radeg, dedeg, fovam, epoch)
+    w = np.where(rmag < 17.)[0] # select only bright stars r < 15 mag.
+
+    plt.figure(figsize=[6,6])
+    plt.scatter(rad[w], ded[w], color='k', edgecolor='none')
+    plt.xlabel('RA [Deg]')
+    plt.ylabel('Dec [Deg]')
+    plt.ticklabel_format(useOffset=False)
+    plt.xlim(max(rad), min(rad)) 
+    plt.show()
+    
+    return name[w], rad[w], ded[w], rmag[w]
