@@ -1,14 +1,7 @@
 import numpy as np
-import astropy.io.fits as fits
-from astropy.io import ascii
-import numpy as np
-import astropy.io.fits as fits
-from astropy.io import ascii
+from astropy.io import ascii, fits
 import matplotlib.pyplot as plt
-from matplotlib import rc
-plt.style.use('classic')
-rc('font', **{'family': 'DejaVu Sans', 'serif': ['Computer Modern'], 'size':15})
-rc('figure', facecolor='w')
+
 
 def bsub(x,over):
 
@@ -26,6 +19,7 @@ def bsub(x,over):
     xb = np.transpose(xbt)
 
     return xb[:,:-32]
+
 
 def reduce(**kwargs):
     """
@@ -47,6 +41,7 @@ def reduce(**kwargs):
     reduced = datab/flatb
     
     return reduced
+
 
 def plotImg(arr, **kwargs):
     """

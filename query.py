@@ -77,6 +77,7 @@ def selectField(**kwargs):
         plt.ticklabel_format(useOffset=False)
         plt.xlim(radeg+fovam/120, radeg-fovam/120) 
         plt.ylim(dedeg-fovam/120, dedeg+fovam/120)
+        plt.title('USNO-B1.0 Catalog Selection')
         plt.show()
     
     return name[w], rad[w], ded[w], rmag[w]
