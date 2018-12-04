@@ -110,3 +110,93 @@ def projectedToPixel(xccd, yccd, Xusno, Yusno, **kwargs):
     Yccd = np.dot(Tinv, xy)[1]
     
     return Xccd, Yccd
+
+
+def matchCoord(x, y, X, Y, **kwargs):
+
+    N = len(x)
+    M = len(X)
+    
+    img_size = kwargs.get('img_size', 1024)
+    
+    match_X, match_Y = [], []
+    for i in range(N):
+        dist_i = []
+        for j in range(M):
+            dist_i.append(dist((x[i],y[i]), (X[j],Y[j])))
+        closest = np.where(dist_i == min(dist_i))[0]
+        match_X.append(X[closest][0])
+        match_Y.append(Y[closest][0])
+        
+    return np.array(match_X), np.array(match_Y)
+
+def removeMatches(x, y, xmatch, ymatch, **kwargs):
+    
+    if len(x) != len(xmatch):
+        return
+    else: N = len(x)
+    
+    img_size = kwargs.get('img_size', 1024)
+    
+    #Remove matches outside the image boundary
+    xm1, ym1, xm2, ym2 = [], [], [], []
+    for i in range(N):
+        if (0 < xmatch[i] < img_size) & (0 < ymatch[i] < img_size):
+            xm1.append(x[i])
+            xm2.append(xmatch[i])
+            ym1.append(y[i])
+            ym2.append(ymatch[i])
+
+    #Remove duplicate CCD points       
+    xdict = {xm1[i]:xm2[i] for i in range(len(xm1))}
+    ydict = {ym1[i]:ym2[i] for i in range(len(xm1))}
+    
+    xrev, yrev = {}, {}
+    for k, v in xdict.items():
+        xrev[v] = xrev.get(v, [])
+        xrev[v].append(k)
+    for k, v in ydict.items():
+        yrev[v] = yrev.get(v, [])
+        yrev[v].append(k)
+
+    xc1, yc1, xc2, yc2 = [], [], [], []
+    nset = len(xrev)
+    for i in range(nset):
+        #catalog
+        key_x, key_y = xm2[i], ym2[i] 
+        #ccd, list with multiples
+        items_x, items_y = xrev[key_x], yrev[key_y] 
+        nitems = len(items_x)
+        
+        dist_i = []
+        for m in range(nitems):
+            ccdm = [items_x[m], items_y[m]]
+            catm = [key_x, key_y]
+            dist_i.append(dist(ccdm, catm))
+        close_idx = np.where(dist_i == min(dist_i))[0][0]
+        #ccd 
+        xc1.append(items_x[close_idx])
+        yc1.append(items_y[close_idx])
+        #catalog
+        xc2.append(key_x)
+        yc2.append(key_y)
+            
+    return xc1, yc1, xc2, yc2
+
+def plotMatch(x, y, xmatch, ymatch, **kwargs):
+    
+    img_size = kwargs.get('img_size', 1024)
+    
+    lines = [[(x[i], y[i]), (xmatch[i], ymatch[i])] for i in range(len(x))]
+    lc = mc.LineCollection(lines, colors='k', linewidths=1, alpha=.5)
+    fig, ax = plt.subplots(figsize=[8,8])
+    ax.add_collection(lc)
+
+    plt.scatter(x, y, color='b', edgecolor='none', label='CCD: %s'%(len(x)))
+    plt.scatter(xmatch, ymatch, color='r', edgecolor='none', label='USNO: %s'%(len(xmatch)))
+    plt.xlim(0,img_size)
+    plt.ylim(0,img_size)
+    plt.xlabel('x (pixel)')
+    plt.ylabel('y (pixel)')
+    plt.legend(loc='upper right', scatterpoints=1)
+    plt.show()
