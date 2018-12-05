@@ -5,14 +5,17 @@ import math
 
 
 def formatRADEC(ras, des):
-	"""
-	Format RA/DEC from strings to degrees
-	"""
-	ra0 = 15*(float(ras[0:2]) + float(ras[3:5])/60. + float(ras[6:])/3600.)
-	dsgn = np.sign(float(des[0:3]))
-	dec0 = float(des[0:3]) + dsgn*float(des[4:6])/60. + dsgn*float(des[7:])/3600.
+    """
+    Format RA/DEC from strings to degrees
+    """
+    rasplit = ras.split(':')
+    desplit = des.split(':')
+    
+    ra0 = 15*(float(rasplit[0]) + float(rasplit[1])/60. + float(rasplit[2])/3600.)
+    dsgn = np.sign(float(desplit[0]))
+    dec0 = float(desplit[0]) + dsgn*float(desplit[1])/60. + dsgn*float(desplit[2])/3600.
 
-	return ra0, dec0
+    return ra0, dec0
 
 
 def angleToProjected(**kwargs):
@@ -58,10 +61,10 @@ def projectedToPixelIdeal(Xproj, Yproj, **kwargs):
     f_p = kwargs.get('f_p', 190020)
     x0 = y0 = 512
     
-    x = f_p*Xproj + x0
-    y = f_p*Yproj + y0
+    xpix = f_p*Xproj + x0
+    ypix = f_p*Yproj + y0
     
-    return x, y
+    return xpix, ypix
 
 
 def projectedToPixelIdealInv(Xccd, Yccd, **kwargs):
