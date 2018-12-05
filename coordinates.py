@@ -102,8 +102,8 @@ def projectedToPixel(xccd, yccd, Xusno, Yusno, **kwargs):
     B = np.array([f_p*Xusno, f_p*Yusno, np.ones(N)]).T
     c = np.dot(np.linalg.inv(np.dot(B.T, B)), B.T)
     
-    ax = np.dot(B, np.dot(c, xccd))
-    ay = np.dot(B, np.dot(c, yccd))
+    ax = np.dot(c, xccd)
+    ay = np.dot(c, yccd)
     
     T = np.array([[f_p*ax[0], f_p*ax[1], ax[2]],
                   [f_p*ay[0], f_p*ay[1], ay[2]],
@@ -114,7 +114,7 @@ def projectedToPixel(xccd, yccd, Xusno, Yusno, **kwargs):
     
     Xccd = np.dot(Tinv, xy)[0]
     Yccd = np.dot(Tinv, xy)[1]
-    
+
     return Xccd, Yccd
 
 
@@ -194,11 +194,11 @@ def removeMatches(x, y, xmatch, ymatch, **kwargs):
         yc2.append(key_y)
             
     return xc1, yc1, xc2, yc2
-    
+
 
 def plotMatch(x, y, xmatch, ymatch, **kwargs):
     
-    img_size = kwargs.get('img_size', 1024)
+    dim = kwargs.get('dim', [0,1024])
     
     lines = [[(x[i], y[i]), (xmatch[i], ymatch[i])] for i in range(len(x))]
     lc = mc.LineCollection(lines, colors='k', linewidths=1, alpha=.5)
@@ -207,9 +207,31 @@ def plotMatch(x, y, xmatch, ymatch, **kwargs):
 
     plt.scatter(x, y, color='b', edgecolor='none', label='CCD: %s'%(len(x)))
     plt.scatter(xmatch, ymatch, color='r', edgecolor='none', label='USNO: %s'%(len(xmatch)))
-    plt.xlim(0,img_size)
-    plt.ylim(0,img_size)
+    plt.xlim(dim)
+    plt.ylim(dim)
     plt.xlabel('x (pixel)')
     plt.ylabel('y (pixel)')
     plt.legend(loc='upper right', scatterpoints=1)
+    plt.show()
+
+
+def plotResiduals(x, y, X, Y, **kwargs):
+    
+    unit = kwargs.get('unit', 'pixel')
+    x, y = np.array(x), np.array(y)
+    X, Y = np.array(X), np.array(Y)
+    xerr = x - X
+    yerr = y - Y
+    
+    fig, ax = plt.subplots(figsize=[12,6])
+    plt.scatter(x, xerr, color='r', marker='^', label='x')
+    plt.scatter(y, yerr, color='b', marker='v', label='y')
+    plt.axhline(0, color='k', linestyle='--')
+    plt.axhline(np.mean(xerr), color='r', linestyle='--')
+    plt.axhline(np.mean(yerr), color='b', linestyle='--')
+    plt.xlabel('x or y [%s]'%(unit))
+    plt.ylabel('Error [%s]'%(unit))
+    plt.legend(loc='upper left', scatterpoints=1)
+    if 'title' in kwargs:
+        plt.title(kwargs.get('title'))
     plt.show()
