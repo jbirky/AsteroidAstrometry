@@ -49,24 +49,17 @@ def usno(radeg,decdeg,fovam,epoch):
     return name,rad,ded,rmag
 
 
-def selectField(**kwargs):
+def selectField(ra0, dec0, **kwargs):
     """
     Select and plot a field of sources from the USNO-B1.0 catalog
     above an rmag cut.
     """
-    file = kwargs.get('file')
-    fovam = kwargs.get('fovam', 3.0)
-    rcut = kwargs.get('rmag', 17.)
-    
-    s = fits.open(file)
-    ras = s[0].header['ra']
-    des = s[0].header['dec']
-    radeg = 15*(float(ras[0:2]) + float(ras[3:5])/60. + float(ras[6:])/3600.)
-    dsgn = np.sign(float(des[0:3]))
-    dedeg = float(des[0:3]) + dsgn*float(des[4:6])/60. + dsgn*float(des[7:])/3600.
 
-    epoch = kwargs.get('epoch', int(s[0].header['DATE'][0:4]))
-    name, rad, ded, rmag = usno(radeg, dedeg, fovam, epoch)
+    fovam = kwargs.get('fovam', 3.0)
+    rcut  = kwargs.get('rmag', 17.)
+    epoch = kwargs.get('epoch', 2000)
+    
+    name, rad, ded, rmag = usno(ra0, dec0, fovam, epoch)
     w = np.where(rmag < rcut)[0] # select only bright stars r < 15 mag.
 
     if kwargs.get('plot', True) == True:
@@ -75,8 +68,8 @@ def selectField(**kwargs):
         plt.xlabel('RA [Deg]')
         plt.ylabel('Dec [Deg]')
         plt.ticklabel_format(useOffset=False)
-        plt.xlim(radeg+fovam/120, radeg-fovam/120) 
-        plt.ylim(dedeg-fovam/120, dedeg+fovam/120)
+        plt.xlim(ra0+fovam/120, ra0-fovam/120) 
+        plt.ylim(dec0-fovam/120, dec0+fovam/120)
         plt.title('USNO-B1.0 Catalog Selection')
         plt.show()
     
