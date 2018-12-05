@@ -4,6 +4,53 @@ import math, os
 import itertools
 
 
+def centroid(dt, **kwargs):
+
+    #fixing bad column of pixels, replacing them with median value of the image
+    dt[:,254:258]=np.median(dt) 
+    dt[:,1000:]=np.median(dt) 
+
+    r = kwargs.get('r', 20) # radius
+    nsources = kwargs.get('nsources', 20)
+    x_centroid = []
+    y_centroid = []
+    x_centroid_err = []
+    y_centroid_err = []
+
+    i = 0
+    while len(x_centroid) < nsources:
+        #make sure we select indices that don't go outside the image (0,1024) range!!!!
+        peak_loc = np.where(dt==np.max(dt[r:1024-r,r:1024-r]))
+        
+        min_x = peak_loc[0][0]-r
+        min_y = peak_loc[1][0]-r
+        max_x = peak_loc[0][0]+r
+        max_y = peak_loc[1][0]+r
+            
+        star_img=dt[min_x:max_x, min_y:max_y]
+
+        x_collapse=np.mean(star_img,axis=1) #collapsing the image along x-axis
+        y_collapse=np.mean(star_img,axis=0) #collapsing the iamge along y-axis
+
+        pos_x=np.arange(peak_loc[1][0]-r,peak_loc[1][0]+r) #x-position array to be used in centroid calculation
+        pos_y=np.arange(peak_loc[0][0]-r,peak_loc[0][0]+r) #y-position array to be used in centroid calculation
+
+        y_centroid.append(np.sum(x_collapse*pos_y)/np.sum(x_collapse)) #computing the x-centroid
+        x_centroid.append(np.sum(y_collapse*pos_x)/np.sum(y_collapse)) #computing the y-centroid
+
+        x_centroid_err.append((np.sum(y_collapse*(pos_x-x_centroid[i])**2)/(np.sum(y_collapse))**2)**0.5) #errors on centroids
+        y_centroid_err.append((np.sum(x_collapse*(pos_y-y_centroid[i])**2)/(np.sum(x_collapse))**2)**0.5)
+
+        dt[min_x:max_x, min_y:max_y] = 0
+        i += 1
+        
+    return np.array([x_centroid,y_centroid])
+
+
+#============================
+# An alternate routine below
+#============================
+
 def findStar(red, **kwargs):
     """
     Find all points in a 2D image with ADU counts above a percentile threshold.
@@ -106,7 +153,7 @@ def selectCircle(**kwargs):
     return circle_cut
 
 
-def centroid(red, peaks, **kwargs):
+def centroidCircle(red, peaks, **kwargs):
     """
     Given peak pixels of stars, cut out a radius of pixels and
     compute sub-pixel centroids and errors
