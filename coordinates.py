@@ -1,7 +1,9 @@
 import numpy as np
 from numpy import cos, sin
 import matplotlib.pyplot as plt
+from matplotlib import collections  as mc
 import math
+from centroid import dist
 
 
 def formatRADEC(ras, des):
