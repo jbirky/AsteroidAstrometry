@@ -61,7 +61,8 @@ def projectedToPixelIdeal(Xproj, Yproj, **kwargs):
     Apply ideal coordinate transformation.
     """
     f_p = kwargs.get('f_p', 190020)
-    x0 = y0 = 512
+    x0 = kwargs.get('x0', 512)
+    y0 = kwargs.get('y0', 512)
     
     xpix = f_p*Xproj + x0
     ypix = f_p*Yproj + y0
@@ -123,17 +124,23 @@ def matchCoord(x, y, X, Y, **kwargs):
     M = len(X)
     
     img_size = kwargs.get('img_size', 1024)
+    thres = kwargs.get('thres', 30)
     
+    match_x, match_y = [], []
     match_X, match_Y = [], []
     for i in range(N):
         dist_i = []
         for j in range(M):
             dist_i.append(dist((x[i],y[i]), (X[j],Y[j])))
         closest = np.where(dist_i == min(dist_i))[0]
-        match_X.append(X[closest][0])
-        match_Y.append(Y[closest][0])
+        if np.array(dist_i)[closest] < thres:
+            match_x.append(x[i])
+            match_y.append(y[i])
+            match_X.append(X[closest][0])
+            match_Y.append(Y[closest][0])
         
-    return np.array(match_X), np.array(match_Y)
+    return np.array(match_x), np.array(match_y), np.array(match_X), np.array(match_Y)
+
 
 def removeMatches(x, y, xmatch, ymatch, **kwargs):
     
@@ -187,6 +194,7 @@ def removeMatches(x, y, xmatch, ymatch, **kwargs):
         yc2.append(key_y)
             
     return xc1, yc1, xc2, yc2
+    
 
 def plotMatch(x, y, xmatch, ymatch, **kwargs):
     
