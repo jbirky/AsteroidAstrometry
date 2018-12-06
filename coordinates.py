@@ -162,7 +162,7 @@ def linear_regression(x, y):
 
     fit = np.dot(np.linalg.inv(A), a)
 
-    sig_sq = np.sum(y - (fit[0]*x + fit[1]))**2/(N + 2)
+    sig_sq = np.sum((y - (fit[0]*x + fit[1]))**2)/(N + 2)
     m_err = np.sqrt(N*sig_sq/(N*np.sum(x**2) - (np.sum(x))**2))
     c_err = np.sqrt(sig_sq*np.sum(x**2)/(N*np.sum(x**2) - (np.sum(x))**2))
     err = np.array([m_err, c_err])
