@@ -137,6 +137,28 @@ def projToSky(X,Y,alpha0,delta0):
     return np.array([alpha,delta])
 
 
+def linear_regression(x, y):
+    """
+    Input:  x, y: 1D arrays
+    Output: [m, c], [m_err, c_err]: slope and intercept best fit and error
+    """
+    N = len(x)
+    x, y = np.array(x), np.array(y)
+
+    A = np.array([[np.sum(x**2), np.sum(x)], \
+                  [np.sum(x), N]])
+    a = np.array([np.sum(x*y), np.sum(y)])
+
+    fit = np.dot(np.linalg.inv(A), a)
+
+    sig_sq = np.sum(y - (fit[0]*x + fit[1]))**2/(N + 2)
+    m_err = np.sqrt(N*sig_sq/(N*np.sum(x**2) - (np.sum(x))**2))
+    c_err = np.sqrt(sig_sq*np.sum(x**2)/(N*np.sum(x**2) - (np.sum(x))**2))
+    err = np.array([m_err, c_err])
+
+    return fit, err
+
+
 #====================
 # Matching algorithms
 #====================
