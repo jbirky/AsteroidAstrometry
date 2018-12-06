@@ -198,7 +198,9 @@ def removeMatches(x, y, xmatch, ymatch, **kwargs):
 
 def plotMatch(x, y, xmatch, ymatch, **kwargs):
     
-    dim = kwargs.get('dim', [0,1024])
+    dim  = kwargs.get('dim', [0,1024])
+    unit = kwargs.get('unit', 'pixel')
+    lbl  = kwargs.get('lbl', ['x', 'y'])
     
     lines = [[(x[i], y[i]), (xmatch[i], ymatch[i])] for i in range(len(x))]
     lc = mc.LineCollection(lines, colors='k', linewidths=1, alpha=.5)
@@ -209,29 +211,35 @@ def plotMatch(x, y, xmatch, ymatch, **kwargs):
     plt.scatter(xmatch, ymatch, color='r', edgecolor='none', label='USNO: %s'%(len(xmatch)))
     plt.xlim(dim)
     plt.ylim(dim)
-    plt.xlabel('x (pixel)')
-    plt.ylabel('y (pixel)')
+    plt.xlabel('%s [%s]'%(lbl[0], unit))
+    plt.ylabel('%s [%s]'%(lbl[1], unit))
     plt.legend(loc='upper right', scatterpoints=1)
     plt.show()
 
 
 def plotResiduals(x, y, X, Y, **kwargs):
     
+    dim  = kwargs.get('dim', [0,1024])
     unit = kwargs.get('unit', 'pixel')
+    lbl  = kwargs.get('lbl', ['x', 'y'])
     x, y = np.array(x), np.array(y)
     X, Y = np.array(X), np.array(Y)
     xerr = x - X
     yerr = y - Y
     
     fig, ax = plt.subplots(figsize=[12,6])
-    plt.scatter(x, xerr, color='r', marker='^', label='x')
-    plt.scatter(y, yerr, color='b', marker='v', label='y')
+    plt.scatter(x, xerr, color='r', marker='^', label=lbl[0])
+    plt.scatter(y, yerr, color='b', marker='v', label=lbl[1])
     plt.axhline(0, color='k', linestyle='--')
     plt.axhline(np.mean(xerr), color='r', linestyle='--')
     plt.axhline(np.mean(yerr), color='b', linestyle='--')
-    plt.xlabel('x or y [%s]'%(unit))
+
+    plt.xlabel('%s or %s [%s]'%(lbl[0], lbl[1], unit))
     plt.ylabel('Error [%s]'%(unit))
     plt.legend(loc='upper left', scatterpoints=1)
     if 'title' in kwargs:
         plt.title(kwargs.get('title'))
+    plt.xlim(kwargs.get('xlim', dim))
+    yrngmax = max(abs(yerr))
+    plt.ylim(kwargs.get('ylim', [-1.1*yrngmax, 1.1*yrngmax]))
     plt.show()
