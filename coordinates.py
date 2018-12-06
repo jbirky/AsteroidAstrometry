@@ -105,17 +105,41 @@ def projectedToPixel(xccd, yccd, Xusno, Yusno, **kwargs):
     ax = np.dot(c, xccd)
     ay = np.dot(c, yccd)
     
+    #Get transformation matrix
     T = np.array([[f_p*ax[0], f_p*ax[1], ax[2]],
                   [f_p*ay[0], f_p*ay[1], ay[2]],
                   [0,         0,         1    ]])
-
-    xy = np.array([xccd, yccd, np.ones(N)])
     Tinv = np.linalg.inv(T)
+
+    #Arrays of ccd coordinates which we want to transform
+    xtrans = kwargs.get('xtrans', xccd)
+    ytrans = kwargs.get('ytrans', yccd)
+    xy = np.array([xtrans, ytrans, np.ones(len(xtrans))])
     
+    #Convert coordinates using transformation matrix: X=Tinv*x
     Xccd = np.dot(Tinv, xy)[0]
     Yccd = np.dot(Tinv, xy)[1]
 
     return Xccd, Yccd
+
+
+def projToSky(X,Y,alpha0,delta0):
+    
+    alpha0 = alpha0*math.pi/180
+    delta0 = delta0*math.pi/180
+    
+    alpha = np.arctan(-(X)/(np.cos(delta0)-Y*np.sin(delta0)))+alpha0
+    delta = np.arcsin((np.sin(delta0)+Y*np.cos(delta0))/(1+X**2+Y**2)**.5)
+    
+    alpha = alpha*180/math.pi
+    delta = delta*180/math.pi
+    
+    return np.array([alpha,delta])
+
+
+#====================
+# Matching algorithms
+#====================
 
 
 def matchCoord(x, y, X, Y, **kwargs):
