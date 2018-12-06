@@ -86,41 +86,52 @@ def projectedToPixelIdealInv(Xccd, Yccd, **kwargs):
 
 
 def projectedToPixel(xccd, yccd, Xusno, Yusno, **kwargs):
-    """
-    Apply shear, scale and rotation coordinate transformation.
-    """
-    xccd, yccd   = np.array(xccd), np.array(yccd)
-    Xusno, Yusno = np.array(Xusno), np.array(Yusno)
-    
-    f_p = kwargs.get('f_p', 190020)
-    if len(xccd) != len(Xusno):
-        print('xccd and Xusno are not the same dimension!')
-        return
-    else:
-        N = len(xccd)
-    
-    B = np.array([f_p*Xusno, f_p*Yusno, np.ones(N)]).T
-    c = np.dot(np.linalg.inv(np.dot(B.T, B)), B.T)
-    
-    ax = np.dot(c, xccd)
-    ay = np.dot(c, yccd)
-    
-    #Get transformation matrix
-    T = np.array([[f_p*ax[0], f_p*ax[1], ax[2]],
-                  [f_p*ay[0], f_p*ay[1], ay[2]],
-                  [0,         0,         1    ]])
-    Tinv = np.linalg.inv(T)
+	"""
+	Apply shear, scale and rotation coordinate transformation.
+	"""
+	xccd, yccd   = np.array(xccd), np.array(yccd)
+	Xusno, Yusno = np.array(Xusno), np.array(Yusno)
 
-    #Arrays of ccd coordinates which we want to transform
-    xtrans = kwargs.get('xtrans', xccd)
-    ytrans = kwargs.get('ytrans', yccd)
-    xy = np.array([xtrans, ytrans, np.ones(len(xtrans))])
-    
-    #Convert coordinates using transformation matrix: X=Tinv*x
-    Xccd = np.dot(Tinv, xy)[0]
-    Yccd = np.dot(Tinv, xy)[1]
+	f_p = kwargs.get('f_p', 190020)
+	if len(xccd) != len(Xusno):
+	    print('xccd and Xusno are not the same dimension!')
+	    return
+	else:
+	    N = len(xccd)
 
-    return Xccd, Yccd
+	B = np.array([f_p*Xusno, f_p*Yusno, np.ones(N)]).T
+	c = np.dot(np.linalg.inv(np.dot(B.T, B)), B.T)
+
+	ax = np.dot(c, xccd)
+	ay = np.dot(c, yccd)
+
+	#Get transformation matrix
+	T = np.array([[f_p*ax[0], f_p*ax[1], ax[2]],
+	              [f_p*ay[0], f_p*ay[1], ay[2]],
+	              [0,         0,         1    ]])
+	Tinv = np.linalg.inv(T)
+
+	if 'Xtrans' in kwargs:
+		Xtrans = kwargs.get('Xtrans')
+		Ytrans = kwargs.get('Ytrans')
+		XY = np.array([Xtrans, Ytrans, np.ones(len(Xtrans))])
+
+		xusno = np.dot(T, XY)[0]
+		yusno = np.dot(T, XY)[1]
+
+		return xusno, yusno
+
+	else:
+		#Arrays of ccd coordinates which we want to transform
+		xtrans = kwargs.get('xtrans', xccd)
+		ytrans = kwargs.get('ytrans', yccd)
+		xy = np.array([xtrans, ytrans, np.ones(len(xtrans))])
+
+		#Convert coordinates using transformation matrix: X=Tinv*x
+		Xccd = np.dot(Tinv, xy)[0]
+		Yccd = np.dot(Tinv, xy)[1]
+
+		return Xccd, Yccd
 
 
 def projToSky(X,Y,alpha0,delta0):
