@@ -10,37 +10,200 @@
 \definecolor{bcolor}{RGB}{0, 51, 153}
 \definecolor{gcolor}{RGB}{51, 153, 51}
 
-\shorttitle{astronomical spectroscopy}
+\shorttitle{asteroid astrometry}
 \shortauthors{j. birky}
 
 \begin{document}
 
-\title{\sc Lab 3: Astrometry}
+\title{\sc Lab 3: Asteroid Astrometry}
 \author{Jessica Birky, Julian Beas-Gonzalez, Russell Van-Linge}
 
 \correspondingauthor{Jessica Birky (A13002163)}
 \email{jbirky@ucsd.edu}
 
 \begin{abstract}
-In this lab we determine the wavelength calibration for two different spectrographs: the Ocean Optics USB 2000 fiber optic spectrograph, and the KAST spectrograph mounted at Lick Observatory. Using spectra of several gas lamps (Helium, Neon, and HeHgCd), we compare the pixel values of emission centroids to theoretical emission wavelengths to determine pixel-to-wavelength conversion solutions of $\lambda=.3568(\mathrm{pixel})+344.21$ nm for the Ocean Optics instrument and  $\lambda=.1549(\mathrm{pixel})+329.25$ nm, using linear least-squares regression. We also compute the errors for each emission peak, and find that the error roughly decreases by a 1/$\sqrt{n}$ trend, with higher lower intensity peaks having higher errors. Finally, applying our calibration to spectra from several different light sources (incandescent and fluorescent bulbs) and astronomical sources (the Sun, BD+15233, Feige 110, and J0047+0319) we draw conclusions about how these spectra were formed based off of Kirchoff's laws of spectral formation.
+Using several frames of data taken over 3.5 hours from the Nickel 1m telescope at Lick Observatory, we compute the proper motion of the asteroid Egeria. Identifying the sources in our charged coupled device (CCD) and computing the centroid of the brightest sources, we compare our data to the USNO-B1.0 all sky catalog to match sources, which allows us to determine the optical distortions of our instrument, by measuring plate scale constants which account for the rotation, magnification, translation and shear transformations which can occur. We then apply this distortion correction to all observed frames to get the RA and DEC of our CCD sources, giving us a set of positions at different times.
+We then fit two equations to describe the proper motion of our sources in radial ascension:
+$\alpha(t)=(-8.5861\pm1.5338)t + (1.4214\pm2.5083)$
+and declination
+$\delta(t)=(-16.8731\pm1.0800)t + (1.1887\pm1.7663)$.
+In other words, our proper motions are the slopes of these lines, $-8.5861\pm1.5338$ and $-16.8731\pm1.0800$ arcsec/hour respectively. We also examine two other science images, NGC 2500 and the Crab nebula commenting on their RGB colored images and what is known about these sources in literature.
 
 \end{abstract}
 \bigskip
 
 \section{Introduction} 
+% Coordinate systems, importance of astrometry
+Astrometry is the topic of astronomy which deals with measuring the positions and velocities of astronomical sources.
+
+In particular, this lab examines the proper motion of asteroids. 
+
+Just by geometry, an object with closer distance will have a higher observed tangetial motion than an object further out moving at the same spped. Because the asteroid belt is nearby in the solar system (between Mars and Jupiter), the close distance means that their observed proper motions are very high compared to farther out sources such as stars and galaxies. As we find in the following analysis, these motions can be on the order of 10 arcsec/hr.
+
+The close proximity of the asteroid belt also of important note to the safety of our planet.
 
 
 % ==================================
 \section{Observations} \label{sec:observations}
+The Nickel instrument, observation selections and considerations. What is already known about Egeria
+
+We also use data from the USNO-B1.0 all sky catalog to query the RA/DEC positions that 
+
+\begin{table}[]
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+    Frames    & Obs time & Source  & Filter & Exposure time & RA         & DEC        \\
+\hline\hline
+$1000-1009$ & 2:10:20  & bias      & R      & 0             & --         & --         \\
+$1010-1014$ & 2:26:30  & domeflats & R      & 5             & --         & --         \\
+$1015-1019$ & 2:33:39  & domeflats & V      & 10            & --         & --         \\
+$1020-1024$ & 2:37:49  & domeflats & B      & 30            & --         & --         \\
+$1025-1029$ & 2:44:05  & domeflats & I      & 3             & --         & --         \\
+$1038-1042$ & 3:36:20  & Egeria    & R      & 20            & 07 01 10.9 & 45 13 34   \\
+$1043-1045$ & 3:41:37  & Egeria    & R      & 30            & 07 01 10.9 & 45 13 34   \\
+$1055-1059$ & 4:19:30  & Egeria    & R      & 20            & 07 01 10.9 & 45 13 34   \\
+$1060-1062$ & 4:22:36  & Egeria    & R      & 30            & 07 01 10.9 & 45 13 34   \\
+$1082-1086$ & 5:29:27  & Egeria    & R      & 20            & 07 01 10.9 & 45 13 34   \\
+$1112-1116$ & 7:00:00  & Egeria    & R      & 20            & 07 01 10.9 & 45 13 34   \\
+1079      & 5:14:34  & NGC2500   & R      & 60            & 07 58 04.8 & 50 52 40   \\
+1080      & 5:17:42  & NGC2500   & R      & 60            & 07 58 08.0 & 50 52 40   \\
+1081      & 5:17:47  & NGC2500   & R      & 60            & 07 58 11.2 & 50 52 40   \\
+1105      & 6:35:20  & Crab      & R      & 120           & 05 34 31.9 & 22 00 52.2 \\
+1106      & 6:38:50  & Crab      & V      & 120           & 05 34 31.9 & 22 00 52.2 \\
+1107      & 6:41:40  & Crab      & I      & 120           & 05 34 31.9 & 22 00 52.2 \\
+1108      & 6:44:45  & Crab      & B      & 120           & 05 34 31.9 & 22 00 52.2 \\
+1109      & 6:48:10  & Crab      & R      & 120           & 05 34 33.4 & 22 00 52.2 \\
+1110      & 6:50:50  & Crab      & V      & 120           & 05 34 33.4 & 22 00 52.2 \\
+1111      & 6:53:40  & Crab      & I      & 120           & 05 34 33.4 & 22 00 52.2 \\
+\hline
+\end{tabular}
+\caption{Observation log for our three different science sources: Egeria the asteroid, NGC2500 the galaxy, and the Crab nebula.}
+\end{center}
+\end{table}
+
 
 
 % ==================================
 \section{Data Reduction \& Methods} \label{sec:methods}
+\subsection{Centroiding Sources} \label{subsec:centroid_method}
+
+Our centroid algorithm allows a user to select the brightest $n$ sources from a CCD image. First it searches the image for the (x,y) locations of the brightest point. Then it selects an ($x-r$,$y-r$) to ($x+r$,$y+r$) square to compute the centoids. Then we collapse the box across the x-axis and y-axis to compute the centroids using the formulas:
+\begin{equation}
+    \langle x \rangle = \frac{\sum x_i I_i}{\sum I_i}, \qquad
+    \langle y \rangle = \frac{\sum y_i I_i}{\sum I_i}
+\end{equation}
+To ensure that exactly $n$ sources are selected we put this procedure into a while loop. Additionally we made sure that the brighest points cannot be selected from within $r$ distance from the image border, that way our selection box does not go outside of the image.
+
+
+\subsection{Coordinate Transformations}
+In order to compare sources selected from the USNO catalog, to sources measured on our CCD and match them, we must first convert them to the same unit scale of pixels. In our notation that follows (x,y) represents pixel coordinates and (X,Y) represents projected coordinates. To do that we first make a transformation which translates the USNO sources from celestial angles radial ascension and declination ($\alpha$, $\delta$) in measured in the J2000 coordinate system to flat projected coordinates on the CCD ($X_{usno}, Y_{usno}$). 
+\begin{equation}
+    X = -\frac{\cos\delta \sin(\alpha-\alpha_0)}{\cos\delta_0 \cos\delta \cos(\alpha-\alpha_0) + \sin\delta \sin\delta_0} 
+\end{equation}
+
+\begin{equation}
+    Y = -\frac{\cos\delta_0 \cos\delta \cos(\alpha-\alpha_0) - \cos\delta_0 \sin\delta}{\cos\delta_0 \cos\delta \cos(\alpha-\alpha_0) + \sin\delta \sin\delta_0}
+\end{equation}
+The code for implementing this transformation is found in lines $1-23$ of section \ref{code:coordinates}, and is visualized in Figure \ref{fig:usno_proj}.
+Once we have our USNO sources in cartesian coordinates, we apply an idealized linear transformation to get those points into pixel scale. Assuming that (X,Y) scale linearly by the focal length of the camera $f$ and the pixel scale $p$ with some constant offsets ($x_o, y_o$) we use the following two equations (lines $26-37$ of Section \ref{code:coordinates}). 
+\begin{equation}
+    x = \left(\frac{f}{p}\right)X + x_o, \qquad y = \left(\frac{f}{p}\right)Y + y_o 
+\end{equation}
+We say this equation is ideal, because it neglects to account for any optical aberrations or mechanical offsets of the instrument, which we will take into account later.
+
+
+\subsection{Coordinate Matching Algorithms}
+Once we have both the CCD centroids and USNO sources in pixel units, we can match the common sources between the two lists. Our proceedure, shown in Figure \ref{fig:matching} consists of first plotting ($x_{ccd},y_{ccd}$) and ($x_{usno}, y_{usno}$) together, and guessing values of $x_o$ and $y_o$ that make the most sources appear to align. Next, using the two dimensional distance metric:
+\begin{equation}
+    r = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}
+\end{equation}
+we find the closest ($x_{usno}, y_{usno}$) match for each ($x_{ccd},y_{ccd}$) coordinate, and if the distance is less than a specified threshold value, we keep the pair (lines $1-22$ of Section \ref{code:matching}). To ensure that each match has a unique ($x_{usno}, y_{usno}$) point, we remove duplicate matches by keeping the match that has a closer separation using the function in lines $25-76$ of Section \ref{code:matching}, and make sure that to match falls outside of the (0,1024) image range.
+
+\subsection{Plate Scale Constants}
+From the matching procedure, we now have two sets of coordinates ($x_{ccd},y_{ccd}$) and ($X_{usno}, Y_{usno}$). Taking into account the rotation, magnification, translation and shear distortions that can occur on the CCD, we get an affine transformation matrix $T$, which translates between (X,Y) coordinates from USNO and (x,y) coordinates from the CCD, $x=TX$:
+\begin{equation}
+T = 
+\begin{bmatrix}
+    (f/p)a_{11} & (f/p)a_{12} & x_o \\
+    (f/p)a_{21} & (f/p)a_{22} & y_o \\
+    0 & 0 & 1
+\end{bmatrix} \label{eqn:Tmatrix}
+\end{equation}
+
+where the rotation, magnification, translation and shear effects combine to a set of 6 solvable constants $c_x = [a_{11}, a_{12}, x_o]$ and $c_y = [a_{21}, a_{22}, y_o]$ which we call the plate scale constants. Expanding equations for $x=TX$ and $y=TY$ for $n=1...N$ gives us
+\begin{equation}
+    x_n = \left(\frac{f}{p}\right)a_{11}X_n + \left(\frac{f}{p}\right)a_{12}Y_n  + x_o 
+\end{equation} \label{eqn:xn}
+\begin{equation}
+    y_n = \left(\frac{f}{p}\right)a_{21}X_n + \left(\frac{f}{p}\right)a_{22}Y_n  + y_o 
+\end{equation} \label{eqn:yn}
+
+Writing Equations \ref{eqn:xn} and \ref{eqn:yn} in a more compact form in terms of $c_x$ and $c_y$ gives us $x = B c_x$ and $y = B c_y$, where
+\begin{equation}
+B = 
+\begin{bmatrix}
+    (f/p)X_1 & (f/p)Y_1 & 1 \\
+    (f/p)X_2 & (f/p)Y_2 & 1 \\
+    \vdots & \vdots & \vdots \\
+    (f/p)X_N & (f/p)Y_N & 1 \\
+\end{bmatrix} \label{eqn:Tmatrix}
+\end{equation}
+
+Now using general least squares, we can solve for the plate constants by minimizing $\chi^2$ (i.e. $\frac{d\chi^2}{dc}=0$):
+\begin{equation}
+    \chi^2_x = (x-B c_x)^{T}(x-B c_x) \quad \Rightarrow \quad c_x = (B^TB)^{-1}B^{T}x
+\end{equation}
+and similarly for y
+\begin{equation}
+    c_y = (B^TB)^{-1}B^{T}y
+\end{equation}
+So now that we have solved for the plate scale constants $c_x = [a_{11}, a_{12}, x_o]$ and $c_y = [a_{21}, a_{22}, y_o]$, we can construct the transformation matrix $T$ and convert our CCD coordinates to projected by computing $X=T^{-1}x$. The implementation for general least squares and applying the transfomation matrix is found in lines $55-101$ of Section \ref{code:coordinates}.
+
+\subsection{Projected to RA/DEC}
+From projected coordinates, we can then convert projected coordinates of our USNO sources to sky coordinates (RA and DEC in degrees) using the tranformations:
+\begin{equation}
+    \tan(\alpha - \alpha_o) = -\frac{X}{\cos\delta_o - Y\sin\delta_o}
+\end{equation} \label{eqn:ra}
+\begin{equation}
+    \sin\delta = \frac{\sin\delta_o + Y\cos\delta_o}{\sqrt{1+X^2+Y^2}}
+\end{equation} \label{eqn:dec}
 
 
 % ==================================
 \section{Data Analysis \& Modeling} \label{sec:analysis}
 
+\subsection{Solving for Plate Constants}
+As in lab 2, we combined the frames for each of the 6 observation times by taking the median, and computed the normalized flat field using:
+\begin{equation}
+    {\rm Flat_{norm} = (Dome - Bias)/Median(Dome - Bias)} 
+\end{equation}
+Then we we bias-subtracted combined science images, and divided each by the normalized flat field. This process resulted in our reduced images, for example the first and last combined observation frames shown in Figure \ref{fig:centroids}.
+
+Next, applying the centroid routine in Section \ref{subsec:centroid_method}, we select the brightest 40 sources, also shown in Figure \ref{fig:centroids}. The box size for computing our centroids was a $40\times40$ pixel range. Next we read in the center RA and DEC values and observation times from the header of one of the fits files. These RA and DEC values we pull ($\alpha_o, \delta_o$) allow us to query the USNO catalog using the code {\tt usno.py} code provided for the lab. Selecting all sources with $r_{\rm mag} < 18$ in a $4\times4$ arcmin window returns 19 sources (Figure \ref{fig:usno_proj}), which we convert to projected coordinates.
+
+Then using the ideal projected-to-pixel coordinate transformation with focal length $f=16480$ and pixel scale $p=2(0.015)$nm we convert the USNO sources to pixel coordinates and compare them to the CCD sources (Figure \ref{fig:matching}). The factor of 2 comes from the fact that the CCD pixels were binned by 2 during observation. Figure \ref{fig:residuals} show the residuals of our matches. The values of $x_o$ and $y_o$ in the ideal transformation weere manually chosen such that the residuals were close to zero. Then we solved for the plate scale constants using our 17 matches ($x_{ccd},y_{ccd}$) and ($X_{usno}, Y_{usno}$). The residuals after the transformation are shown on the right of Figure \ref{fig:residuals}, and the typical errors appear to be reduced by a factor of about 10 compared to the residuals before the transformation.
+
+Besides choosing the initial guesses ($x_o, y_o$) for the ideal projected-to-pixel transformation, and specifying the files that correspong to a source, the procedure for computing the RA and DEC from a set of reduced CCD images and calculating the proper motion is completely automated (see Section \ref{code:proper_motion}).
+
+Finally using Equations \ref{eqn:ra} and \ref{eqn:dec} we computed the RA and DEC of our 40 sources from the CCD.
+
+
+\subsection{Computing Proper Motions}
+We repeated our analysis procedure for extracting RA/DECs from our CCD centroids for all 6 observation times. Figure
+
+
+\subsection{Reduced Science Images}
+Figure \ref{fig:sci_imgs} shows the reduced science images for the galaxy NGC 2500 and the Crab nebula. The data frames were reduced using lines $1-17$ of \ref{code:reduction}. In the top panels of the figure we show the R band filter reduced frames, and in the bottom panel we use a square-root image scale to combine 3 different color band frames using code borrowed from\footnote{\href{http://www.astrobetter.com/wiki/tiki-index.php?page=RGB+Images+with+matplotlib}{http://www.astrobetter.com/wiki/tiki-index.php?page=RGB+Images+with+matplotlib}} in lines $20-49$ of Section \ref{code:reduction}. 
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=.6\linewidth]{plots/ubvri.jpg}
+\caption{UBVRI photometric system. Source: \href{http://www.nmerry.com/lvguangpian/ASAHI_SPECTRA/2016/0908/369.html}{http://www.nmerry.com/lvguangpian/ASAHI\_SPECTRA\\/2016/0908/369.html}} \label{fig:ubvri}
+\end{center}
+\end{figure}
+
+Figure \ref{fig:ubvri} shows wavelength ranges which define the UBVRI photometric bands, with U being the bluest band, and I being red/infrared. In the colored images, we used an RGB color scheme to represent three different colored frames: for the Crab nebula, blue represents B, green represents V, and red represents R. Since there was no blue observation for NGC 2500 we used blue to represent the V filter, green to represent R, and red to represent I. From there we stacked the images together manually adjusted the image min and max scale values for each color, until it looked the most visually appealing. While we also tested a linear color scale, the square root scale looked slightly more aesthetic.
 
 % ==================================
 \section{Discussion} \label{sec:discussion}
@@ -53,16 +216,86 @@ In this lab we determine the wavelength calibration for two different spectrogra
 % ==================================
 \section{Author Contributions}
 This project was done in collaboration with Julian Beas-Gonzalez and Russell Van-Linge (Group
-E).
+E). I used some of Julian's code for reducing the images and coordinate transformations, some of Russell's code for transformations and the centroid routine, and I worked on the centroid routine, matching routine, residual code, proper motion fits, and reduced colored images.
 
 % ===================
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=.48\linewidth]{plots/egeria_centroids_frame0.png}
+\includegraphics[width=.48\linewidth]{plots/egeria_centroids_frame5.png}
+\caption{Centroid routine applied to select the brightest 40 sources in the first (left) and last (right) reduced frames.} \label{fig:centroids}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=15em]{plots/usno_radec.png}
+\includegraphics[height=15em]{plots/usno_projected.png}
+\caption{All sources (19 found) queried from the USNO-B1.0 all sky catalog, selected with $r_{\rm mag}<18$, within a $4\times4$ arcminute window of $(\alpha_o, \delta_o)=(105.2954167, 45.2261111)$, the center RA and DEC pulled from the header from our first raw frame of the combined exposure. Left plot shows the query in RA/DEC coordinates (in degrees), and the right plot shows those coordinates transformed to projected coordinates (X,Y).} \label{fig:usno_proj}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=.32\linewidth]{plots/usno_ccd_pixel.png}
+\includegraphics[width=.32\linewidth]{plots/usno_ccd_pixel_match1.png}
+\includegraphics[width=.32\linewidth]{plots/usno_ccd_pixel_match2.png}
+\caption{The three stages of our coordinate matching routine. First we convert USNO sources to pixel scale and compare them to the positions of our CCD centroids (left plot). Next we match each of the CCD sources to its nearest USNO source using a 2D euclidean distance metric (middle plot). Finally we remove matches any matches that are not unique, by choosing the closest matches (right plot).} \label{fig:matching}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=.48\linewidth]{plots/match_residuals1.png}
+\includegraphics[width=.48\linewidth]{plots/match_residuals2.png}
+\caption{USNO and CCD match residuals for the first frame of data with the ideal projected-to-pixel transformation on the left, and after applying the plate scale solution on the right. In the left panel, the y residuals show a slight upwards trend as a function of increasing pixel indicating a possible spherical aberration to the detector, while the right panel after the least squares solution appears to remove this trend.} \label{fig:residuals}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=.48\linewidth]{plots/egeria_radec1.png}
+\includegraphics[width=.48\linewidth]{plots/egeria_radec2.png}
+\caption{First and last observation frames for Egeria plotted in RA/DEC sky coordinates (in degrees). Egeria is marked with a red dot.}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=.48\linewidth]{plots/egeria_pm_ra.png}
+\includegraphics[width=.48\linewidth]{plots/egeria_pm_dec.png}  \\
+\includegraphics[width=.48\linewidth]{plots/egeria_pm_ra_residuals.png}
+\includegraphics[width=.48\linewidth]{plots/egeria_pm_dec_residuals.png} 
+\caption{Proper motion in radial ascension (left) and declination (right) coordinates for Egeria.}
+\label{fig:proper_motion}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=.48\linewidth]{plots/ngc1.png}
+\includegraphics[width=.48\linewidth]{plots/crab1.png} \\
+\includegraphics[width=.48\linewidth]{plots/ngc_color.png}
+\includegraphics[width=.48\linewidth]{plots/crab_color.png}
+\caption{Reduced science images: the galaxy NGC 2500 to the left, and the Crab nebula to the right. The top images show the reduced frame for just the R filter plotted on a black and white color scale. The bottom image for NGC 2500 shows the 3-color plot, where blue represents the V filter, green represents R, and red represents I. In the bottom image for the Crab nebula, blue represents B, green represents V, and red represents R.} \label{fig:sci_imgs}
+\end{center} 
+\end{figure}
+
+
 
 % ==================================
 \newpage
 \section{Appendix}
 
 \lstset{language=Python,
-        basicstyle=\footnotesize\ttfamily,
+        basicstyle=\scriptsize\ttfamily,
         keywordstyle=\color{blue},
         numbers=left,
         numberstyle=\ttfamily,
@@ -73,7 +306,6 @@ E).
 
 \vspace{7pt} \hrule \vspace{7pt}
 \subsection{Data Reduction} \label{code:reduction}
-\small
 \hrule
 \begin{lstlisting}
 def reduce(dataf, flatf):
@@ -81,8 +313,8 @@ def reduce(dataf, flatf):
     Bias-subtract and normalize science images
     """  
     flat = fits.getdata(flatf)
-    dat = fits.getdata(dataf)
-    hdr = fits.getheader(dataf)
+    dat  = fits.getdata(dataf)
+    hdr  = fits.getheader(dataf)
 
     #Bias subtract
     datab = bsub(dat, hdr.get('cover')) 
@@ -93,11 +325,446 @@ def reduce(dataf, flatf):
     reduced = datab/flatb
     
     return reduced
+
+
+def sqrt(inputArray, scale_min=None, scale_max=None):
+    """Performs sqrt scaling of the input numpy array.
+    Source: http://www.astrobetter.com/wiki/tiki-index.php
+            ?page=RGB+Images+with+matplotlib
+
+    @type inputArray: numpy array
+    @param inputArray: image data array
+    @type scale_min: float
+    @param scale_min: minimum data value
+    @type scale_max: float
+    @param scale_max: maximum data value
+    @rtype: numpy array
+    @return: image data array
+    
+    """     
+    imageData=numpy.array(inputArray, copy=True)
+    
+    if scale_min == None:
+        scale_min = imageData.min()
+    if scale_max == None:
+        scale_max = imageData.max()
+
+    imageData = imageData.clip(min=scale_min, max=scale_max)
+    imageData = imageData - scale_min
+    indices = numpy.where(imageData < 0)
+    imageData[indices] = 0.0
+    imageData = numpy.sqrt(imageData)
+    imageData = imageData / math.sqrt(scale_max - scale_min)
+    
+    return imageData
 \end{lstlisting}
 \hrule \vspace{7pt}
 
 
+\subsection{Centroiding} \label{code:centroid}
+\hrule
+\begin{lstlisting}
+def centroid(dt, **kwargs):
 
+    #fixing bad column of pixels, replacing them with median value of the image
+    dt[:,254:258]=np.median(dt) 
+    dt[:,1000:]=np.median(dt) 
+
+    r = kwargs.get('r', 20) # radius
+    nsources = kwargs.get('nsources', 20)
+    x_centroid = []
+    y_centroid = []
+    x_centroid_err = []
+    y_centroid_err = []
+
+    i = 0
+    while len(x_centroid) < nsources:
+        #make sure we select indices that don't go outside the image (0,1024) range!!!!
+        peak_loc = np.where(dt==np.max(dt[r:1024-r,r:1024-r]))
+        
+        min_x = peak_loc[0][0]-r
+        min_y = peak_loc[1][0]-r
+        max_x = peak_loc[0][0]+r
+        max_y = peak_loc[1][0]+r
+            
+        star_img=dt[min_x:max_x, min_y:max_y]
+
+        x_collapse=np.mean(star_img,axis=1) #collapsing the image along x-axis
+        y_collapse=np.mean(star_img,axis=0) #collapsing the iamge along y-axis
+
+        pos_x=np.arange(peak_loc[1][0]-r,peak_loc[1][0]+r) 
+        pos_y=np.arange(peak_loc[0][0]-r,peak_loc[0][0]+r) 
+
+        y_centroid.append(np.sum(x_collapse*pos_y)/np.sum(x_collapse)) 
+        x_centroid.append(np.sum(y_collapse*pos_x)/np.sum(y_collapse)) 
+
+        #errors on centroids
+        x_centroid_err.append((np.sum(y_collapse*(pos_x-x_centroid[i])**2)/\
+            (np.sum(y_collapse))**2)**0.5) 
+        y_centroid_err.append((np.sum(x_collapse*(pos_y-y_centroid[i])**2)/\
+            (np.sum(x_collapse))**2)**0.5)
+
+        dt[min_x:max_x, min_y:max_y] = 0
+        i += 1
+        
+    return np.array([x_centroid,y_centroid])
+\end{lstlisting}
+\hrule \vspace{7pt}
+
+
+\subsection{Coordinate Transformations} \label{code:coordinates}
+\hrule
+\begin{lstlisting}
+def angleToProjected(**kwargs):
+    """
+    Transform RA/DEC coordinates (degrees) into projected sky coordinates
+    """
+    ra0  = kwargs.get('ra0')
+    dec0 = kwargs.get('dec0')
+    ra   = kwargs.get('ra')
+    dec  = kwargs.get('dec')
+    fovam = kwargs.get('fovam', 4.0)
+
+    #convert degrees to radians
+    ra0  = ra0*math.pi/180
+    dec0 = dec0*math.pi/180
+    ra   = ra*math.pi/180
+    dec  = dec*math.pi/180
+
+    X = cos(dec)*sin(ra-ra0) / (cos(dec0)*cos(dec)*cos(ra-ra0) + sin(dec)*sin(dec0))
+    Y = sin(dec0)*cos(dec)*cos(ra-ra0) - sin(dec)*cos(dec0) / \
+            (cos(dec0)*cos(dec)*cos(ra-ra0) + sin(dec)*sin(dec0))
+    #convert to radians
+    X, Y = -X, -Y
+
+    return X, Y
+
+
+def projectedToPixelIdeal(Xproj, Yproj, **kwargs):
+    """
+    Apply ideal coordinate transformation.
+    """
+    f_p = kwargs.get('f_p', 190020)
+    x0 = kwargs.get('x0', 512)
+    y0 = kwargs.get('y0', 512)
+    
+    xpix = f_p*Xproj + x0
+    ypix = f_p*Yproj + y0
+    
+    return xpix, ypix
+
+
+def projectedToPixelIdealInv(Xccd, Yccd, **kwargs):
+    """
+    Apply ideal coordinate transformation.
+    """
+    f_p = kwargs.get('f_p', 190020)
+    
+    Xccd, Yccd = np.array(Xccd), np.array(Yccd)
+    x0 = y0 = 512
+    
+    Xproj = (Xccd - x0)/f_p
+    Yproj = (Yccd - y0)/f_p
+
+    return Xproj, Yproj
+
+
+def projectedToPixel(xccd, yccd, Xusno, Yusno, **kwargs):
+    """
+    Apply shear, scale and rotation coordinate transformation.
+    """
+    xccd, yccd   = np.array(xccd), np.array(yccd)
+    Xusno, Yusno = np.array(Xusno), np.array(Yusno)
+
+    f_p = kwargs.get('f_p', 190020)
+    if len(xccd) != len(Xusno):
+        print('xccd and Xusno are not the same dimension!')
+        return
+    else:
+        N = len(xccd)
+
+    B = np.array([f_p*Xusno, f_p*Yusno, np.ones(N)]).T
+    c = np.dot(np.linalg.inv(np.dot(B.T, B)), B.T)
+
+    ax = np.dot(c, xccd)
+    ay = np.dot(c, yccd)
+
+    #Get transformation matrix
+    T = np.array([[f_p*ax[0], f_p*ax[1], ax[2]],
+                  [f_p*ay[0], f_p*ay[1], ay[2]],
+                  [0,         0,         1    ]])
+    Tinv = np.linalg.inv(T)
+
+    if 'Xtrans' in kwargs:
+        Xtrans = kwargs.get('Xtrans')
+        Ytrans = kwargs.get('Ytrans')
+        XY = np.array([Xtrans, Ytrans, np.ones(len(Xtrans))])
+
+        xusno = np.dot(T, XY)[0]
+        yusno = np.dot(T, XY)[1]
+
+        return xusno, yusno
+
+    else:
+        #Arrays of ccd coordinates which we want to transform
+        xtrans = kwargs.get('xtrans', xccd)
+        ytrans = kwargs.get('ytrans', yccd)
+        xy = np.array([xtrans, ytrans, np.ones(len(xtrans))])
+
+        #Convert coordinates using transformation matrix: X=Tinv*x
+        Xccd = np.dot(Tinv, xy)[0]
+        Yccd = np.dot(Tinv, xy)[1]
+
+        return Xccd, Yccd
+
+
+def projToSky(X,Y,alpha0,delta0):
+    
+    alpha0 = alpha0*math.pi/180
+    delta0 = delta0*math.pi/180
+    
+    alpha = np.arctan(-(X)/(np.cos(delta0)-Y*np.sin(delta0)))+alpha0
+    delta = np.arcsin((np.sin(delta0)+Y*np.cos(delta0))/(1+X**2+Y**2)**.5)
+    
+    alpha = alpha*180/math.pi
+    delta = delta*180/math.pi
+    
+    return np.array([alpha,delta])
+\end{lstlisting}
+\hrule \vspace{7pt}
+
+
+\subsection{Matching Algorithms} \label{code:matching}
+\hrule
+\begin{lstlisting}
+def matchCoord(x, y, X, Y, **kwargs):
+
+    N = len(x)
+    M = len(X)
+    
+    img_size = kwargs.get('img_size', 1024)
+    thres = kwargs.get('thres', 30)
+    
+    match_x, match_y = [], []
+    match_X, match_Y = [], []
+    for i in range(N):
+        dist_i = []
+        for j in range(M):
+            dist_i.append(dist((x[i],y[i]), (X[j],Y[j])))
+        closest = np.where(dist_i == min(dist_i))[0]
+        if np.array(dist_i)[closest] < thres:
+            match_x.append(x[i])
+            match_y.append(y[i])
+            match_X.append(X[closest][0])
+            match_Y.append(Y[closest][0])
+        
+    return np.array(match_x), np.array(match_y), np.array(match_X), np.array(match_Y)
+
+
+def removeMatches(x, y, xmatch, ymatch, **kwargs):
+    
+    if len(x) != len(xmatch):
+        return
+    else: N = len(x)
+    
+    img_size = kwargs.get('img_size', 1024)
+    
+    #Remove matches outside the image boundary
+    xm1, ym1, xm2, ym2 = [], [], [], []
+    for i in range(N):
+        if (0 < xmatch[i] < img_size) & (0 < ymatch[i] < img_size):
+            xm1.append(x[i])
+            xm2.append(xmatch[i])
+            ym1.append(y[i])
+            ym2.append(ymatch[i])
+
+    #Remove duplicate CCD points       
+    xdict = {xm1[i]:xm2[i] for i in range(len(xm1))}
+    ydict = {ym1[i]:ym2[i] for i in range(len(xm1))}
+    
+    xrev, yrev = {}, {}
+    for k, v in xdict.items():
+        xrev[v] = xrev.get(v, [])
+        xrev[v].append(k)
+    for k, v in ydict.items():
+        yrev[v] = yrev.get(v, [])
+        yrev[v].append(k)
+
+    xc1, yc1, xc2, yc2 = [], [], [], []
+    nset = len(xrev)
+    for i in range(nset):
+        #catalog
+        key_x, key_y = xm2[i], ym2[i] 
+        #ccd, list with multiples
+        items_x, items_y = xrev[key_x], yrev[key_y] 
+        nitems = len(items_x)
+        
+        dist_i = []
+        for m in range(nitems):
+            ccdm = [items_x[m], items_y[m]]
+            catm = [key_x, key_y]
+            dist_i.append(dist(ccdm, catm))
+        close_idx = np.where(dist_i == min(dist_i))[0][0]
+        #ccd 
+        xc1.append(items_x[close_idx])
+        yc1.append(items_y[close_idx])
+        #catalog
+        xc2.append(key_x)
+        yc2.append(key_y)
+            
+    return xc1, yc1, xc2, yc2
+\end{lstlisting}
+\hrule \vspace{7pt}
+
+
+\subsection{Linear Regression} \label{code:regression}
+\hrule
+\begin{lstlisting}
+def linear_regression(x, y):
+    """
+    Input:  x, y: 1D arrays
+    Output: [m, c], [m_err, c_err]: slope and intercept best fit and error
+    """
+    N = len(x)
+    x, y = np.array(x), np.array(y)
+
+    A = np.array([[np.sum(x**2), np.sum(x)], \
+                  [np.sum(x), N]])
+    a = np.array([np.sum(x*y), np.sum(y)])
+
+    fit = np.dot(np.linalg.inv(A), a)
+
+    sig_sq = np.sum((y - (fit[0]*x + fit[1]))**2)/(N + 2)
+    m_err = np.sqrt(N*sig_sq/(N*np.sum(x**2) - (np.sum(x))**2))
+    c_err = np.sqrt(sig_sq*np.sum(x**2)/(N*np.sum(x**2) - (np.sum(x))**2))
+    err = np.array([m_err, c_err])
+
+    return fit, err
+\end{lstlisting}
+\hrule \vspace{7pt}
+
+
+\subsection{Proper Motion} \label{code:proper_motion}
+\hrule
+\begin{lstlisting}
+"""
+Compute the RA and DEC for the brightest 40 sources in each frame
+"""
+RA, DEC = [], []
+times = []
+for i in [0,1,2,3,4,5]:
+    nsources = 40
+    rmag  = 18
+    fovam = 4
+
+    #Read in reduced arrays
+    folder = 'data/egeria/egeria_'
+    #should be in order of time of observation
+    obs    = ['ob1','df1','ob2','df2','ob3','ob4'] 
+    #begining frame numbers, to read headers
+    frames = ['1038','1043','1055','1060','1082','1112'] 
+    xc = [459, 459, 461, 467, 492, 466]
+    yc = [598, 598, 601, 601, 584, 622]
+
+    #======================
+
+    data   = np.array([np.load(folder+f+'.npy') for f in obs])
+    data2  = np.array([np.load(folder+f+'.npy') for f in obs])
+
+    #Get center RA and DEC from file headers
+    rawf = fits.getheader('data/asteroids/d%s.fits'%(frames[i]))
+    ra0, dec0 = formatRADEC(rawf['RA'], rawf['DEC'])
+    times.append(rawf['DATE'].split('T')[1])
+
+    
+    #Compute centroids 
+    xccd, yccd = centroid(data[i], nsources=nsources)
+    plotImg(data2[i], pts=[xccd, yccd], title=\
+            'Egeria %s: %s Centroids'%(obs[i], nsources))
+  
+    #Select field from USNO catalog
+    name, rad, ded, rmag = selectField(ra0, dec0, fovam=fovam, rmag=rmag, plot=False)
+    
+    #Convert USNO to projected coordinates
+    Xusno, Yusno = angleToProjected(ra0=ra0, dec0=dec0, ra=rad, dec=ded, \
+                    fovam=fovam, plot=False)
+
+    #Convert USNO to pixel coordinates using ideal transformation
+    xusno_ideal, yusno_ideal = projectedToPixelIdeal(Xusno, Yusno, \
+                                f_p=16480/(2*0.015), x0=xc[i], y0=yc[i])
+
+    #Match CCD and USNO coordinates
+    xccd_match, yccd_match, xusno_match, yusno_match = \
+            matchCoord(xccd, yccd, xusno_ideal, yusno_ideal, thres=20)
+    #make sure matches are unique, and within the image range
+    xm1, ym1, xm2, ym2 = removeMatches(xccd_match, yccd_match, \
+                            xusno_match, yusno_match)
+    
+    plotMatch(xm1, ym1, xm2, ym2)
+    plotResiduals(xm1, ym1, xm2, ym2, unit='pixel', \
+            title='Match Residuals', ylim=[-20,20])
+
+    #Convert CCD to projected coordinates
+    Xm_usno, Ym_usno = projectedToPixelIdealInv(xm2, ym2, f_p=16480/(2*0.015))
+
+    Xm_ccd, Ym_ccd = projectedToPixel(xm1, ym1, Xm_usno, Ym_usno, f_p=190020)
+
+    xm_usno, ym_usno = projectedToPixel(xm1, ym1, Xm_usno, Ym_usno, \
+                        f_p=190020, Xtrans=Xm_usno, Ytrans=Ym_usno)
+    
+    plotResiduals(xm1, ym1, xm_usno, ym_usno, unit='pixel', \
+            lbl=['x', 'y'], title='Match Residuals')
+
+    #Convert to RA/DEC!
+    Xccd, Yccd = projectedToPixel(xm1, ym1, Xm_usno, Ym_usno, \
+            f_p=190020, xtrans=xccd, ytrans=yccd)
+    Rccd, Dccd = projToSky(-Xccd, Yccd, ra0, dec0)
+    
+    RA.append(Rccd)
+    DEC.append(Dccd)
+
+
+"""
+Get RA and DEC of the asteroid in each frame
+"""
+ast = [0] #index of asteroid, 0 because it's the brightest
+Rast, Dast = [], []
+for i in range(6):
+    Rccd = RA[i]
+    Dccd = DEC[i]
+    Rast.append(Rccd[ast][0])
+    Dast.append(Dccd[ast][0])
+    
+
+"""
+Get times (in hours) of each frame
+"""
+tf = []
+for tt in times:
+    k = timedelta(hours=float(tt.split(':')[0]), \
+        minutes=float(tt.split(':')[1]), seconds=float(tt.split(':')[2]))
+    tf.append(k)
+    
+delt_sec = np.array([(k-tf[0]).total_seconds() for k in tf])
+delt_hrs = delt_sec/3600
+
+#convert degrees to arcmin
+Rast = (np.array(Rast) - Rast[0])*3600
+Dast = (np.array(Dast) - Dast[0])*3600
+
+
+"""
+Use least-squares to fit a line to determine proper motions in RA and DEC
+"""
+[m, c], [m_err, c_err] = linear_regression(delt_hrs, Rast)
+tarr = np.arange(min(delt_hrs)-.1, max(delt_hrs)+.1, .01)
+rarr = m*tarr + c
+
+[m, c], [m_err, c_err] = linear_regression(delt_hrs, Dast)
+tarr = np.arange(min(delt_hrs)-.1, max(delt_hrs)+.1, .01)
+darr = m*tarr + c
+\end{lstlisting}
+\hrule \vspace{7pt}
 
 \end{document}
 
